@@ -1,6 +1,14 @@
+from turtle import title
 from fastapi import Body, FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
+
+
+class Post(BaseModel):
+    title: str
+    content: str
+    published: bool = True
 
 
 @app.get("/")
@@ -14,6 +22,6 @@ def get_posts():
 
 
 @app.post("/createposts")
-def create_posts(payload: dict = Body(...)):
-    print(payload)
-    return {"new_post": f"title : {payload['title']} content: {payload['content']}"}
+def create_posts(post: Post):
+    print(post)
+    return {"data": post}
