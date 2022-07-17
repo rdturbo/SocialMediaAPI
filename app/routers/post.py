@@ -3,15 +3,16 @@ from sqlalchemy.orm import Session
 
 from app import models, oauth2, schemas
 from app.database import get_db
-# from .. import models, schemas
-# from ..database import get_db
 
 router = APIRouter(prefix="/posts", tags=['Posts'])
 
 
 @router.get("/", response_model=list[schemas.PostResponse])
-def get_posts(db: Session = Depends(get_db), current_user=Depends(oauth2.get_current_user)):
-    posts = db.query(models.Post).all()
+def get_posts(limit: int = 10, skip: int = 0, search: str | None = "",
+              db: Session = Depends(get_db),
+              current_user=Depends(oauth2.get_current_user)):
+    posts = db.query(models.Post).filter(models.Post.title.contains(
+        search)).limit(limit=limit).offset(skip).all()
     return posts
 
 

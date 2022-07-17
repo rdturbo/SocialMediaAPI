@@ -1,8 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:romel123@localhost/socialMediaAPI"
+from app.config import settings
+
+
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
@@ -19,3 +25,18 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# while True:
+#     try:
+#         conn = psycopg2.connect(
+#             host="localhost", database="socialMediaAPI", user="postgres",
+#             password="romel123", cursor_factory=RealDictCursor
+#         )
+#         cursor = conn.cursor()
+#         print("Database was successfully connected")
+#         break
+#     except Exception as error:
+#         print("Connection to the database failed!!!")
+#         print(f"Error was {error}")
+#         time.sleep(2)
