@@ -36,3 +36,8 @@ class UserResponse(BaseModel):
     class Config:
         # tells pydantic to convert sqlalchemy model for response
         orm_mode = True
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
