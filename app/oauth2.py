@@ -1,5 +1,11 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+from fastapi import HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer
+
+from app import schemas
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -8,9 +14,32 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-def create_access_token(data: dict):
-    expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+def create_access_token(data: dict) -> str:
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = data.copy()
-    to_encode["exp"] = expire
-
+    to_encode.update({"exp": expire})
     return jwt.encode(claims=to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_access_token(token: str, credentials_exception) -> schemas.TokenData:
+    try:
+        payload = jwt.decode(token=token, key=SECRET_KEY,
+                             algorithms=[ALGORITHM])
+        id: str = payload.get("user_id")
+        if id is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(id=id)
+        print(id)
+    except JWTError:
+        raise credentials_exception
+
+    return token_data
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> schemas.TokenData:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    return verify_access_token(token=token, credentials_exception=credentials_exception)

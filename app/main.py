@@ -3,9 +3,14 @@ from fastapi import FastAPI, HTTPException, Response, Depends, status
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.orm import Session
-from . import models, schemas, utils
-from .database import engine, get_db
-from .routers import user, post, auth
+
+from app import models
+from app.database import engine
+from app.routers import post, user, auth
+
+# from . import models, schemas, utils
+# from .database import engine, get_db
+# from .routers import user, post, auth
 
 models.Base.metadata.create_all(bind=engine)
 
