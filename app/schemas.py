@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, conint
 
 
 class UserCreate(BaseModel):
@@ -33,7 +33,7 @@ class PostCreate(PostBase):
     pass
 
 
-class PostResponse(PostBase):
+class Post(PostBase):
     # Response Validation
     id: int
     created_at: datetime
@@ -45,6 +45,14 @@ class PostResponse(PostBase):
         orm_mode = True
 
 
+class PostResponse(BaseModel):
+    Post: Post
+    votes: int
+
+    class Config:
+        orm_mode = True
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -53,3 +61,8 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     # Data embedded in to access token
     id: str | None = None
+
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1)
